@@ -1,0 +1,64 @@
+package com.pokeskies.actionitems.item.actions.types
+
+import com.google.gson.annotations.SerializedName
+import com.pokeskies.actionitems.ActionItems
+import com.pokeskies.actionitems.economy.EconomyType
+import com.pokeskies.actionitems.item.actions.Action
+import com.pokeskies.actionitems.item.actions.ActionType
+import com.pokeskies.actionitems.item.requirements.RequirementOptions
+import com.pokeskies.actionitems.utils.FlexibleListAdaptorFactory
+import com.pokeskies.actionitems.utils.Utils
+import net.minecraft.core.component.DataComponentPatch
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+
+class GiveItem(
+    type: ActionType = ActionType.GIVE_ITEM,
+    requirements: RequirementOptions? = RequirementOptions(),
+    val item: String = "",
+    val amount: Int = 1,
+    val nbt: CompoundTag? = null,
+    @SerializedName("custom_model_data")
+    val customModelData: Int? = null
+) : Action(type, requirements) {
+    override fun executeAction(player: ServerPlayer) {
+        val newItem = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(item))
+        if (newItem.isEmpty) {
+            Utils.printDebug("[ACTION - ${type.name}] Failed due to an empty or invalid item ID. Item ID: $item, returned: $newItem")
+            return
+        }
+        val itemStack = ItemStack(newItem.get(), amount)
+
+        var nbtCopy = nbt?.copy()
+
+        if (customModelData != null) {
+            if (nbtCopy != null) {
+                nbtCopy.putInt("minecraft:custom_model_data", customModelData)
+            } else {
+                val newNBT = CompoundTag()
+                newNBT.putInt("minecraft:custom_model_data", customModelData)
+                nbtCopy = newNBT
+            }
+        }
+
+        if (nbtCopy != null) {
+            DataComponentPatch.CODEC.decode(ActionItems.INSTANCE.nbtOpts, nbtCopy).result().ifPresent { result ->
+                itemStack.applyComponents(result.first)
+            }
+        }
+
+        Utils.printDebug("[ACTION - ${type.name}] Player(${player.gameProfile.name}), ItemStack(${itemStack}: $this")
+
+        player.addItem(itemStack)
+    }
+
+    override fun toString(): String {
+        return "GiveItem(requirements=$requirements, item=$item, amount=$amount, nbt=$nbt)"
+    }
+
+}

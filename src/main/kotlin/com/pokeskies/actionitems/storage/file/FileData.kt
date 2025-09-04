@@ -1,0 +1,11 @@
+package com.pokeskies.actionitems.storage.file
+
+import com.pokeskies.actionitems.data.UserData
+import java.util.*
+
+class FileData {
+    var userdata: HashMap<UUID, UserData> = HashMap()
+    override fun toString(): String {
+        return "FileData(userdata=$userdata)"
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "actionitems",
+  "version": "${version}",
+  "name": "ActionItems",
+  "description": "Create preset items with actions",
+  "authors": [
+    "AmoAster",
+    "Stampede"
+  ],
+  "entrypoints": {
+    "main": [
+      "com.pokeskies.actionitems.ActionItems"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": ">=1.21.1"
+  },
+  "mixins": ["actionitems.mixins.json"],
+  "accessWidener": "actionitems.accesswidener"
+}

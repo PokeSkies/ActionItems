@@ -1,0 +1,45 @@
+{
+  "display": {
+    "item": "minecraft:diamond",
+    "name": "<red><b>Example Item",
+    "lore": [
+      "<gray>Click to use this item!"
+    ]
+  },
+  "actions": [
+    {
+      "type": "COMMAND_CONSOLE",
+      "command": [
+        "give %player% diamond 1"
+      ]
+    },
+    {
+      "type": "PLAYSOUND",
+      "sound": "minecraft:entity.player.levelup"
+    },
+    {
+      "type": "MESSAGE",
+      "message": [
+        "<green>You have used an Example Item and received a diamond!"
+      ]
+    }
+  ],
+  "requirements": {
+    "requirements": [
+      {
+        "type": "PERMISSION",
+        "permission": "actionitems.item.example"
+      }
+    ],
+    "deny_actions": [
+      {
+        "type": "MESSAGE",
+        "message": [
+          "<red>You do not have permission to use this item!"
+        ]
+      }
+    ]
+  },
+  "cooldown": 5,
+  "consume": true
+}
