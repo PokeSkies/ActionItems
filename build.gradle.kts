@@ -59,6 +59,7 @@ repositories {
     }
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://maven.impactdev.net/repository/development/")
+    maven("https://repo.lucko.me")
 }
 
 dependencies {

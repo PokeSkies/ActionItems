@@ -19,8 +19,8 @@ class SQLStorage(private val config: StorageOptions) : IStorage {
         StorageType.SQLITE -> SQLiteProvider(config)
         else -> throw IllegalStateException("Invalid storage type!")
     }
-    private val cooldownMapType: Type = object : TypeToken<HashMap<String, Int>>() {}.type
-    private val usesMapType: Type = object : TypeToken<HashMap<String, Long>>() {}.type
+    private val cooldownMapType: Type = object : TypeToken<HashMap<String, Long>>() {}.type
+    private val usesMapType: Type = object : TypeToken<HashMap<String, Int>>() {}.type
 
     init {
         connectionProvider.init()
