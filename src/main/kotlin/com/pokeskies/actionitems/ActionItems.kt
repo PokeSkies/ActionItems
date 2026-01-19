@@ -7,8 +7,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.pokeskies.actionitems.commands.BaseCommand
 import com.pokeskies.actionitems.config.ConfigManager
-import com.pokeskies.actionitems.economy.EconomyType
-import com.pokeskies.actionitems.economy.IEconomyService
+import com.pokeskies.actionitems.economy.EconomyManager
 import com.pokeskies.actionitems.item.actions.Action
 import com.pokeskies.actionitems.item.actions.ActionType
 import com.pokeskies.actionitems.item.requirements.Requirement
@@ -68,7 +67,6 @@ class ActionItems : ModInitializer {
     lateinit var server: MinecraftServer
     lateinit var nbtOpts: RegistryOps<Tag>
 
-    private var economyServices: Map<EconomyType, IEconomyService> = emptyMap()
     lateinit var placeholderManager: PlaceholderManager
 
     val molangRuntime: MoLangRuntime = MoLangRuntime().setup()
@@ -81,7 +79,6 @@ class ActionItems : ModInitializer {
     var gson: Gson = GsonBuilder().disableHtmlEscaping()
         .registerTypeAdapter(Action::class.java, ActionType.Adapter())
         .registerTypeAdapter(Requirement::class.java, RequirementType.Adapter())
-        .registerTypeAdapter(EconomyType::class.java, EconomyType.Adapter())
         .registerTypeAdapter(StorageType::class.java, StorageType.Adapter())
         .registerTypeHierarchyAdapter(Item::class.java, Utils.RegistrySerializer(BuiltInRegistries.ITEM))
         .registerTypeHierarchyAdapter(SoundEvent::class.java, Utils.RegistrySerializer(BuiltInRegistries.SOUND_EVENT))
@@ -102,7 +99,8 @@ class ActionItems : ModInitializer {
             this.storage = null
         }
 
-        this.economyServices = IEconomyService.getLoadedEconomyServices()
+        EconomyManager.init()
+
         this.placeholderManager = PlaceholderManager()
 
         registerEvents()
@@ -135,23 +133,9 @@ class ActionItems : ModInitializer {
             Utils.printError(e.message)
             this.storage = null
         }
-
-        this.economyServices = IEconomyService.getLoadedEconomyServices()
     }
 
     fun parsePlaceholders(player: ServerPlayer, text: String): String {
         return placeholderManager.parse(player, text)
-    }
-
-    fun getLoadedEconomyServices(): Map<EconomyType, IEconomyService> {
-        return this.economyServices
-    }
-
-    fun getEconomyService(economyType: EconomyType?): IEconomyService? {
-        return economyType?.let { this.economyServices[it] }
-    }
-
-    fun getEconomyServiceOrDefault(economyType: EconomyType?): IEconomyService? {
-        return economyType?.let { this.economyServices[it] } ?: this.economyServices.values.firstOrNull()
     }
 }

@@ -8,8 +8,8 @@ import java.util.function.Function
 plugins {
     java
     idea
-    id("quiet-fabric-loom") version ("1.9-SNAPSHOT")
-    kotlin("jvm") version ("2.1.0")
+    id("quiet-fabric-loom") version ("1.13-SNAPSHOT")
+    id("org.jetbrains.kotlin.jvm").version("2.3.0")
     `maven-publish`
 }
 val modId = project.properties["mod_id"].toString()
@@ -160,46 +160,9 @@ java {
 }
 
 tasks.withType<AbstractArchiveTask> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     from("LICENSE") {
         rename { "${it}_${modId}" }
-    }
-}
-tasks.create("hydrate") {
-    doLast {
-        val applyFileReplacements: Function<String, String> = Function { path ->
-            path.replace("\$mod_name$", project.properties["mod_name"].toString())
-                .replace("\$mod_id$", project.properties["mod_id"].toString())
-                .replace("\$mod_group$", project.properties["mod_group"].toString())
-        }
-        val applyPathReplacements: Function<String, String> = Function { path ->
-            path.replace("\$mod_name$", project.properties["mod_name"].toString())
-                .replace("\$mod_id$", project.properties["mod_id"].toString())
-                .replace("\$mod_group$", project.properties["mod_group"].toString().replace(".", "/"))
-        }
-        project.extensions.getByType<JavaPluginExtension>().sourceSets.forEach { sourceSet ->
-            sourceSet.allSource.sourceDirectories.asFileTree.forEach { file ->
-                val newPath = Paths.get(applyPathReplacements.apply(file.path))
-                Files.createDirectories(newPath.parent)
-
-                if (!file.path.endsWith(".png")) {
-                    val lines =
-                        Files.readAllLines(file.toPath(), StandardCharsets.UTF_8)
-                            .map { applyFileReplacements.apply(it) }
-                    Files.deleteIfExists(file.toPath())
-                    Files.write(
-                        newPath,
-                        lines
-                    )
-                } else {
-                    Files.move(file.toPath(), newPath)
-                }
-
-                var parent = file.parentFile
-                while (parent.listFiles()?.isEmpty() == true) {
-                    Files.deleteIfExists(parent.toPath())
-                    parent = parent.parentFile
-                }
-            }
-        }
     }
 }

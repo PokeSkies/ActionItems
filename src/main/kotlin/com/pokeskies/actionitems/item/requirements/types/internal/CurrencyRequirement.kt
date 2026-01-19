@@ -1,7 +1,6 @@
 package com.pokeskies.actionitems.item.requirements.types.internal
 
-import com.pokeskies.actionitems.ActionItems
-import com.pokeskies.actionitems.economy.EconomyType
+import com.pokeskies.actionitems.economy.EconomyManager
 import com.pokeskies.actionitems.item.requirements.ComparisonType
 import com.pokeskies.actionitems.item.requirements.Requirement
 import com.pokeskies.actionitems.item.requirements.RequirementType
@@ -12,14 +11,14 @@ class CurrencyRequirement(
     comparison: ComparisonType = ComparisonType.GREATER_THAN_OR_EQUALS,
     private val currency: String = "",
     private val amount: Double = 0.0,
-    private val economy: EconomyType? = null
+    private val economy: String? = null
 ) : Requirement(RequirementType.CURRENCY, comparison) {
     override fun checkRequirements(player: ServerPlayer): Boolean {
         if (!checkComparison()) return false
 
-        val service = ActionItems.INSTANCE.getEconomyServiceOrDefault(economy)
+        val service = EconomyManager.getService(economy)
         if (service == null) {
-            Utils.printError("[REQUIREMENT - ${type?.name}] No Economy Service could be found from '$economy'! Valid services are: ${ActionItems.INSTANCE.getLoadedEconomyServices().keys}")
+            Utils.printError("[REQUIREMENT - ${type?.name}] No Economy Service could be found from '$economy'! Valid services are: ${EconomyManager.getServices().keys}")
             return false
         }
 
