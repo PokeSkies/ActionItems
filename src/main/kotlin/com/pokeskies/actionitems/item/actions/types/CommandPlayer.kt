@@ -11,13 +11,12 @@ import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.server.level.ServerPlayer
 
 class CommandPlayer(
-    type: ActionType = ActionType.COMMAND_PLAYER,
     requirements: RequirementOptions? = RequirementOptions(),
     @JsonAdapter(FlexibleListAdaptorFactory::class) @SerializedName("commands",  alternate = ["command"])
     private val commands: List<String> = emptyList(),
     @SerializedName("permission_level")
     private val permissionLevel: Int? = null
-) : Action(type, requirements) {
+) : Action(ActionType.COMMAND_PLAYER, requirements) {
     override fun executeAction(player: ServerPlayer) {
         val parsedCommands = commands.map { ActionItems.INSTANCE.parsePlaceholders(player, it) }
 

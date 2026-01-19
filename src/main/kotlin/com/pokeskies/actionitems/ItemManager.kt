@@ -14,7 +14,7 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.item.ItemStack
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 object ItemManager {

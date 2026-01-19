@@ -9,12 +9,11 @@ import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.server.level.ServerPlayer
 
 class CurrencyRequirement(
-    type: RequirementType = RequirementType.CURRENCY,
     comparison: ComparisonType = ComparisonType.GREATER_THAN_OR_EQUALS,
     private val currency: String = "",
     private val amount: Double = 0.0,
     private val economy: EconomyType? = null
-) : Requirement(type, comparison) {
+) : Requirement(RequirementType.CURRENCY, comparison) {
     override fun checkRequirements(player: ServerPlayer): Boolean {
         if (!checkComparison()) return false
 

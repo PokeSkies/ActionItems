@@ -2,30 +2,25 @@ package com.pokeskies.actionitems.item.actions.types
 
 import com.google.gson.annotations.SerializedName
 import com.pokeskies.actionitems.ActionItems
-import com.pokeskies.actionitems.economy.EconomyType
 import com.pokeskies.actionitems.item.actions.Action
 import com.pokeskies.actionitems.item.actions.ActionType
 import com.pokeskies.actionitems.item.requirements.RequirementOptions
-import com.pokeskies.actionitems.utils.FlexibleListAdaptorFactory
 import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
 
 class GiveItem(
-    type: ActionType = ActionType.GIVE_ITEM,
     requirements: RequirementOptions? = RequirementOptions(),
     val item: String = "",
     val amount: Int = 1,
     val nbt: CompoundTag? = null,
     @SerializedName("custom_model_data")
     val customModelData: Int? = null
-) : Action(type, requirements) {
+) : Action(ActionType.GIVE_ITEM, requirements) {
     override fun executeAction(player: ServerPlayer) {
         val newItem = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(item))
         if (newItem.isEmpty) {

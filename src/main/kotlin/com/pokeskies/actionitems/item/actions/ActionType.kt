@@ -6,12 +6,12 @@ import net.fabricmc.loader.api.FabricLoader
 import java.lang.reflect.Type
 
 
-enum class ActionType(val identifier: String, val clazz: Class<*>) {
+enum class ActionType(val identifier: String, val clazz: Class<*>, val aliases: List<String> = emptyList()) {
     COMMAND_CONSOLE("command_console", CommandConsole::class.java),
     COMMAND_PLAYER("command_player", CommandPlayer::class.java),
     MESSAGE("message", MessagePlayer::class.java),
     BROADCAST("broadcast", MessageBroadcast::class.java),
-    PLAYSOUND("playsound", PlaySound::class.java),
+    PLAY_SOUND("play_sound", PlaySound::class.java, listOf("playsound")),
     GIVE_XP("give_xp", GiveXP::class.java),
     CURRENCY_DEPOSIT("currency_deposit", CurrencyDeposit::class.java),
     CURRENCY_WITHDRAW("currency_withdraw", CurrencyWithdraw::class.java),
@@ -20,16 +20,22 @@ enum class ActionType(val identifier: String, val clazz: Class<*>) {
     MOLANG("molang", MolangAction::class.java),
     TAKE_ITEM("take_item", TakeItem::class.java);
 
+    fun isIdentifier(name: String): Boolean {
+        if (name.equals(identifier, true)) return true
+        if (aliases.any { name.equals(it, true) }) return true
+        return false
+    }
+
     companion object {
         fun valueOfAnyCase(name: String): ActionType? {
             for (type in entries) {
-                if (name.equals(type.identifier, true)) return type
+                if (type.isIdentifier(name)) return type
             }
             return null
         }
     }
 
-    internal class ActionTypeAdaptor : JsonSerializer<Action>, JsonDeserializer<Action> {
+    internal class Adapter : JsonSerializer<Action>, JsonDeserializer<Action> {
         override fun serialize(src: Action, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
             return context.serialize(src, src::class.java)
         }

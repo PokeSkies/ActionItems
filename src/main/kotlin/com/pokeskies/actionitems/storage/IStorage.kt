@@ -1,6 +1,5 @@
 package com.pokeskies.actionitems.storage
 
-import com.pokeskies.actionitems.storage.StorageType
 import com.pokeskies.actionitems.config.StorageOptions
 import com.pokeskies.actionitems.data.UserData
 import com.pokeskies.actionitems.storage.database.MongoStorage

@@ -3,16 +3,8 @@ package com.pokeskies.actionitems
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.google.common.util.concurrent.ThreadFactoryBuilder
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import java.io.IOException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import net.minecraft.nbt.NbtOps
-import net.minecraft.nbt.Tag
-import net.minecraft.resources.RegistryOps
 import com.pokeskies.actionitems.commands.BaseCommand
 import com.pokeskies.actionitems.config.ConfigManager
 import com.pokeskies.actionitems.economy.EconomyType
@@ -26,14 +18,19 @@ import com.pokeskies.actionitems.storage.IStorage
 import com.pokeskies.actionitems.storage.StorageType
 import com.pokeskies.actionitems.utils.CompoundTagAdaptor
 import com.pokeskies.actionitems.utils.Utils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
-import net.fabricmc.api.ModInitializer
 import net.kyori.adventure.platform.fabric.FabricServerAudiences
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtOps
+import net.minecraft.nbt.Tag
+import net.minecraft.resources.RegistryOps
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
@@ -42,6 +39,9 @@ import net.minecraft.world.item.Item
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.File
+import java.io.IOException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class ActionItems : ModInitializer {
     companion object {
@@ -79,13 +79,13 @@ class ActionItems : ModInitializer {
         .build())
 
     var gson: Gson = GsonBuilder().disableHtmlEscaping()
-        .registerTypeAdapter(Action::class.java, ActionType.ActionTypeAdaptor())
-        .registerTypeAdapter(Requirement::class.java, RequirementType.RequirementTypeAdaptor())
-        .registerTypeAdapter(EconomyType::class.java, EconomyType.EconomyTypeAdaptor())
+        .registerTypeAdapter(Action::class.java, ActionType.Adapter())
+        .registerTypeAdapter(Requirement::class.java, RequirementType.Adapter())
+        .registerTypeAdapter(EconomyType::class.java, EconomyType.Adapter())
+        .registerTypeAdapter(StorageType::class.java, StorageType.Adapter())
         .registerTypeHierarchyAdapter(Item::class.java, Utils.RegistrySerializer(BuiltInRegistries.ITEM))
         .registerTypeHierarchyAdapter(SoundEvent::class.java, Utils.RegistrySerializer(BuiltInRegistries.SOUND_EVENT))
         .registerTypeAdapter(CompoundTag::class.java, CompoundTagAdaptor())
-        .registerTypeAdapter(StorageType::class.java, StorageType.StorageTypeAdaptor())
         .create()
 
     var gsonPretty: Gson = gson.newBuilder().setPrettyPrinting().create()
@@ -117,7 +117,7 @@ class ActionItems : ModInitializer {
             this.nbtOpts = server.registryAccess().createSerializationContext(NbtOps.INSTANCE)
             this.placeholderManager.registerServices()
         })
-        ServerLifecycleEvents.SERVER_STARTED.register(ServerLifecycleEvents.ServerStarted { server: MinecraftServer ->
+        ServerLifecycleEvents.SERVER_STARTED.register(ServerLifecycleEvents.ServerStarted { _: MinecraftServer ->
             ItemManager.load()
         })
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->

@@ -1,11 +1,7 @@
 package com.pokeskies.actionitems.item.requirements
 
 import com.google.gson.*
-import com.pokeskies.actionitems.item.requirements.types.internal.CurrencyRequirement
-import com.pokeskies.actionitems.item.requirements.types.internal.DimensionRequirement
-import com.pokeskies.actionitems.item.requirements.types.internal.ItemRequirement
-import com.pokeskies.actionitems.item.requirements.types.internal.PermissionRequirement
-import com.pokeskies.actionitems.item.requirements.types.internal.PlaceholderRequirement
+import com.pokeskies.actionitems.item.requirements.types.internal.*
 import java.lang.reflect.Type
 
 enum class RequirementType(val identifier: String, val clazz: Class<*>) {
@@ -25,7 +21,7 @@ enum class RequirementType(val identifier: String, val clazz: Class<*>) {
         }
     }
 
-    internal class RequirementTypeAdaptor : JsonSerializer<Requirement>, JsonDeserializer<Requirement> {
+    internal class Adapter : JsonSerializer<Requirement>, JsonDeserializer<Requirement> {
         override fun serialize(src: Requirement, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
             return context.serialize(src, src::class.java)
         }

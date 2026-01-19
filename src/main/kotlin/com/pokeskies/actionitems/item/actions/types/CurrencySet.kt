@@ -5,17 +5,15 @@ import com.pokeskies.actionitems.economy.EconomyType
 import com.pokeskies.actionitems.item.actions.Action
 import com.pokeskies.actionitems.item.actions.ActionType
 import com.pokeskies.actionitems.item.requirements.RequirementOptions
-import com.pokeskies.actionitems.utils.FlexibleListAdaptorFactory
 import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.server.level.ServerPlayer
 
 class CurrencySet(
-    type: ActionType = ActionType.CURRENCY_SET,
     requirements: RequirementOptions? = RequirementOptions(),
     private val currency: String = "",
     private val amount: Double = 0.0,
     private val economy: EconomyType? = null
-) : Action(type, requirements) {
+) : Action(ActionType.CURRENCY_SET, requirements) {
     override fun executeAction(player: ServerPlayer) {
         val service = ActionItems.INSTANCE.getEconomyServiceOrDefault(economy)
         if (service == null) {

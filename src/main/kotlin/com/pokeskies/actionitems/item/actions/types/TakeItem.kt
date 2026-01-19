@@ -5,7 +5,6 @@ import com.pokeskies.actionitems.ActionItems
 import com.pokeskies.actionitems.item.actions.Action
 import com.pokeskies.actionitems.item.actions.ActionType
 import com.pokeskies.actionitems.item.requirements.RequirementOptions
-import com.pokeskies.actionitems.utils.FlexibleListAdaptorFactory
 import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.registries.BuiltInRegistries
@@ -16,7 +15,6 @@ import net.minecraft.world.item.ItemStack
 import kotlin.jvm.optionals.getOrNull
 
 class TakeItem(
-    type: ActionType = ActionType.GIVE_XP,
     requirements: RequirementOptions? = RequirementOptions(),
     val item: String = "",
     val amount: Int = 1,
@@ -24,7 +22,7 @@ class TakeItem(
     @SerializedName("custom_model_data")
     val customModelData: Int? = null,
     val strict: Boolean = true
-) : Action(type, requirements) {
+) : Action(ActionType.GIVE_XP, requirements) {
     override fun executeAction(player: ServerPlayer) {
         var removed = 0
         for ((i, stack) in player.inventory.items.withIndex()) {

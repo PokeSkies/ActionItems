@@ -2,7 +2,6 @@ package com.pokeskies.actionitems.item.requirements.types.internal
 
 import com.google.gson.annotations.JsonAdapter
 import com.pokeskies.actionitems.ActionItems
-import com.pokeskies.actionitems.economy.EconomyType
 import com.pokeskies.actionitems.item.requirements.ComparisonType
 import com.pokeskies.actionitems.item.requirements.Requirement
 import com.pokeskies.actionitems.item.requirements.RequirementType
@@ -11,13 +10,12 @@ import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.server.level.ServerPlayer
 
 class PlaceholderRequirement(
-    type: RequirementType = RequirementType.PLACEHOLDER,
     comparison: ComparisonType = ComparisonType.EQUALS,
     private val input: String = "",
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     private val output: List<String> = emptyList(),
     private val strict: Boolean = false
-) : Requirement(type, comparison) {
+) : Requirement(RequirementType.PLACEHOLDER, comparison) {
     override fun checkRequirements(player: ServerPlayer): Boolean {
         if (!checkComparison()) return false
 

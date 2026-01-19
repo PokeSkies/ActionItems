@@ -8,7 +8,6 @@ import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import com.google.gson.stream.MalformedJsonException
-import kotlinx.serialization.descriptors.PrimitiveKind.*
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -34,7 +33,7 @@ internal class FlexibleListAdaptorFactory<E> private constructor() : TypeAdapter
                 // No, raw
                 return Any::class.java
             }
-            val parameterizedType = type as ParameterizedType
+            val parameterizedType = type
             return parameterizedType.actualTypeArguments[0]
         }
 
@@ -69,7 +68,6 @@ internal class FlexibleListAdaptorFactory<E> private constructor() : TypeAdapter
 
                     JsonToken.NULL -> throw AssertionError("Must never happen: check if the type adapter configured with .nullSafe()")
                     JsonToken.NAME, JsonToken.END_ARRAY, JsonToken.END_OBJECT, JsonToken.END_DOCUMENT -> throw MalformedJsonException("Unexpected token: $token")
-                    else -> throw AssertionError("Must never happen: $token")
                 }
                 return list
             }

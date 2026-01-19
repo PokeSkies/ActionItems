@@ -14,7 +14,7 @@
       ]
     },
     {
-      "type": "PLAYSOUND",
+      "type": "PLAY_SOUND",
       "sound": "minecraft:entity.player.levelup"
     },
     {

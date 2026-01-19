@@ -2,7 +2,6 @@ package com.pokeskies.actionitems.item.requirements.types.internal
 
 import com.google.gson.annotations.SerializedName
 import com.pokeskies.actionitems.ActionItems
-import com.pokeskies.actionitems.economy.EconomyType
 import com.pokeskies.actionitems.item.requirements.ComparisonType
 import com.pokeskies.actionitems.item.requirements.Requirement
 import com.pokeskies.actionitems.item.requirements.RequirementType
@@ -12,13 +11,10 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
 import kotlin.jvm.optionals.getOrNull
 
 class ItemRequirement(
-    type: RequirementType = RequirementType.ITEM,
     comparison: ComparisonType = ComparisonType.EQUALS,
     val item: String = "",
     val amount: Int? = null,
@@ -26,7 +22,7 @@ class ItemRequirement(
     @SerializedName("custom_model_data")
     val customModelData: Int? = null,
     val strict: Boolean = true
-) : Requirement(type, comparison) {
+) : Requirement(RequirementType.ITEM, comparison) {
     override fun checkRequirements(player: ServerPlayer): Boolean {
         if (!checkComparison()) return false
 
@@ -46,16 +42,16 @@ class ItemRequirement(
         return when (comparison) {
             ComparisonType.EQUALS -> {
                 if (amount != null) {
-                    return amountFound == amount
+                    amountFound == amount
                 } else {
-                    return amountFound >= 1
+                    amountFound >= 1
                 }
             }
             ComparisonType.NOT_EQUALS -> {
                 if (amount != null) {
-                    return amountFound != amount
+                    amountFound != amount
                 } else {
-                    return amountFound == 0
+                    amountFound == 0
                 }
             }
             ComparisonType.GREATER_THAN -> amountFound > targetAmount

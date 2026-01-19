@@ -15,7 +15,6 @@ import com.pokeskies.actionitems.ActionItems
 import com.pokeskies.actionitems.config.StorageOptions
 import com.pokeskies.actionitems.data.UserData
 import com.pokeskies.actionitems.storage.IStorage
-import com.pokeskies.actionitems.storage.database.UUIDCodec
 import com.pokeskies.actionitems.utils.Utils
 import org.bson.UuidRepresentation
 import org.bson.codecs.configuration.CodecRegistries

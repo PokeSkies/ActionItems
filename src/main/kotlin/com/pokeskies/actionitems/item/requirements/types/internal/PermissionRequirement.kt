@@ -11,12 +11,11 @@ import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.server.level.ServerPlayer
 
 class PermissionRequirement(
-    type: RequirementType = RequirementType.PERMISSION,
     comparison: ComparisonType = ComparisonType.EQUALS,
     @JsonAdapter(FlexibleListAdaptorFactory::class) @SerializedName("permissions",  alternate = ["permission"])
     private val permissions: List<String> = listOf(),
     private val mode: PermissionMode = PermissionMode.ALL,
-) : Requirement(type, comparison) {
+) : Requirement(RequirementType.PERMISSION, comparison) {
     override fun checkRequirements(player: ServerPlayer): Boolean {
         if (!checkComparison()) return false
 

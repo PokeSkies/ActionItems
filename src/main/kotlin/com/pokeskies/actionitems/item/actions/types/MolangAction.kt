@@ -13,11 +13,10 @@ import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.server.level.ServerPlayer
 
 class MolangAction(
-    type: ActionType = ActionType.MOLANG,
     requirements: RequirementOptions? = RequirementOptions(),
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val script: List<String> = listOf()
-) : Action(type, requirements) {
+) : Action(ActionType.MOLANG, requirements) {
     override fun executeAction(player: ServerPlayer) {
         Utils.printDebug("[ACTION - ${type.name}] Player(${player.gameProfile.name}): $this")
         ActionItems.INSTANCE.molangRuntime.resolve(

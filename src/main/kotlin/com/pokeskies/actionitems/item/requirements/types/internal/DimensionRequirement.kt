@@ -7,10 +7,9 @@ import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.server.level.ServerPlayer
 
 class DimensionRequirement(
-    type: RequirementType = RequirementType.DIMENSION,
     comparison: ComparisonType = ComparisonType.EQUALS,
     private val id: String = ""
-) : Requirement(type, comparison) {
+) : Requirement(RequirementType.DIMENSION, comparison) {
     override fun checkRequirements(player: ServerPlayer): Boolean {
         if (!checkComparison()) return false
 
