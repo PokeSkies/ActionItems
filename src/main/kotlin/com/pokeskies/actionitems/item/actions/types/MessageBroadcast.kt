@@ -6,6 +6,7 @@ import com.pokeskies.actionitems.ActionItems
 import com.pokeskies.actionitems.item.actions.Action
 import com.pokeskies.actionitems.item.actions.ActionType
 import com.pokeskies.actionitems.item.requirements.RequirementOptions
+import com.pokeskies.actionitems.placeholders.PlaceholderManager
 import com.pokeskies.actionitems.utils.FlexibleListAdaptorFactory
 import com.pokeskies.actionitems.utils.TextUtils
 import com.pokeskies.actionitems.utils.Utils
@@ -17,7 +18,7 @@ class MessageBroadcast(
     private val message: List<String> = emptyList()
 ) : Action(ActionType.BROADCAST, requirements) {
     override fun executeAction(player: ServerPlayer) {
-        val parsedMessages = message.map { ActionItems.INSTANCE.parsePlaceholders(player, it) }
+        val parsedMessages = message.map { PlaceholderManager.parse(player, it) }
 
         Utils.printDebug("[ACTION - ${type.name}] Player(${player.gameProfile.name}), Parsed Messages($parsedMessages): $this")
 

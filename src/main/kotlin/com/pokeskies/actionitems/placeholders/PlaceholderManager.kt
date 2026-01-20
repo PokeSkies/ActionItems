@@ -6,7 +6,7 @@ import com.pokeskies.actionitems.placeholders.services.MiniPlaceholdersService
 import com.pokeskies.actionitems.placeholders.services.PlaceholderAPIService
 import net.minecraft.server.level.ServerPlayer
 
-class PlaceholderManager {
+object PlaceholderManager {
     private val services: MutableList<IPlaceholderService> = mutableListOf()
 
     fun registerServices() {
@@ -19,8 +19,12 @@ class PlaceholderManager {
         }
     }
 
-    fun parse(player: ServerPlayer, text: String): String {
-        var returnValue = text
+    fun parse(player: ServerPlayer, text: String, additionalPlaceholders: Map<String, String> = emptyMap()): String {
+        var returnValue = text.let {
+            additionalPlaceholders.entries.fold(it) { acc, (key, value) ->
+                acc.replace(key, value)
+            }
+        }
         for (service in services) {
             returnValue = service.parsePlaceholders(player, returnValue)
         }

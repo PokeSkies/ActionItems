@@ -2,6 +2,7 @@
 /run/
 /.idea/
 /.gradle/
+/.kotlin/
 /buildSrc/build/
 /buildSrc/.gradle/
 *.iml

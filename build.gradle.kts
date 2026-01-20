@@ -1,10 +1,5 @@
 @file:Suppress("UnstableApiUsage")
 
-import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.util.function.Function
-
 plugins {
     java
     idea
@@ -81,7 +76,7 @@ dependencies {
     })
 
     // PermissionsAPI
-    modImplementation("me.lucko:fabric-permissions-api:0.3.1")
+    modImplementation(include("me.lucko:fabric-permissions-api:0.3.1")!!)
 
     // Placeholder Mods
     modImplementation("io.github.miniplaceholders:miniplaceholders-api:2.2.3")

@@ -9,9 +9,7 @@ import com.pokeskies.actionitems.commands.BaseCommand
 import com.pokeskies.actionitems.config.ConfigManager
 import com.pokeskies.actionitems.economy.EconomyManager
 import com.pokeskies.actionitems.item.actions.Action
-import com.pokeskies.actionitems.item.actions.ActionType
 import com.pokeskies.actionitems.item.requirements.Requirement
-import com.pokeskies.actionitems.item.requirements.RequirementType
 import com.pokeskies.actionitems.placeholders.PlaceholderManager
 import com.pokeskies.actionitems.storage.IStorage
 import com.pokeskies.actionitems.storage.StorageType
@@ -32,7 +30,6 @@ import net.minecraft.nbt.Tag
 import net.minecraft.resources.RegistryOps
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.world.item.Item
 import org.apache.logging.log4j.LogManager
@@ -67,8 +64,6 @@ class ActionItems : ModInitializer {
     lateinit var server: MinecraftServer
     lateinit var nbtOpts: RegistryOps<Tag>
 
-    lateinit var placeholderManager: PlaceholderManager
-
     val molangRuntime: MoLangRuntime = MoLangRuntime().setup()
 
     val asyncExecutor: ExecutorService = Executors.newFixedThreadPool(8, ThreadFactoryBuilder()
@@ -77,8 +72,8 @@ class ActionItems : ModInitializer {
         .build())
 
     var gson: Gson = GsonBuilder().disableHtmlEscaping()
-        .registerTypeAdapter(Action::class.java, ActionType.Adapter())
-        .registerTypeAdapter(Requirement::class.java, RequirementType.Adapter())
+        .registerTypeAdapter(Action::class.java, Action.Adapter())
+        .registerTypeAdapter(Requirement::class.java, Requirement.Adapter())
         .registerTypeAdapter(StorageType::class.java, StorageType.Adapter())
         .registerTypeHierarchyAdapter(Item::class.java, Utils.RegistrySerializer(BuiltInRegistries.ITEM))
         .registerTypeHierarchyAdapter(SoundEvent::class.java, Utils.RegistrySerializer(BuiltInRegistries.SOUND_EVENT))
@@ -101,8 +96,6 @@ class ActionItems : ModInitializer {
 
         EconomyManager.init()
 
-        this.placeholderManager = PlaceholderManager()
-
         registerEvents()
     }
 
@@ -113,7 +106,7 @@ class ActionItems : ModInitializer {
             )
             this.server = server
             this.nbtOpts = server.registryAccess().createSerializationContext(NbtOps.INSTANCE)
-            this.placeholderManager.registerServices()
+            PlaceholderManager.registerServices()
         })
         ServerLifecycleEvents.SERVER_STARTED.register(ServerLifecycleEvents.ServerStarted { _: MinecraftServer ->
             ItemManager.load()
@@ -133,9 +126,5 @@ class ActionItems : ModInitializer {
             Utils.printError(e.message)
             this.storage = null
         }
-    }
-
-    fun parsePlaceholders(player: ServerPlayer, text: String): String {
-        return placeholderManager.parse(player, text)
     }
 }

@@ -6,6 +6,7 @@ import com.pokeskies.actionitems.ActionItems
 import com.pokeskies.actionitems.item.actions.Action
 import com.pokeskies.actionitems.item.actions.ActionType
 import com.pokeskies.actionitems.item.requirements.RequirementOptions
+import com.pokeskies.actionitems.placeholders.PlaceholderManager
 import com.pokeskies.actionitems.utils.FlexibleListAdaptorFactory
 import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.server.level.ServerPlayer
@@ -18,7 +19,7 @@ class CommandPlayer(
     private val permissionLevel: Int? = null
 ) : Action(ActionType.COMMAND_PLAYER, requirements) {
     override fun executeAction(player: ServerPlayer) {
-        val parsedCommands = commands.map { ActionItems.INSTANCE.parsePlaceholders(player, it) }
+        val parsedCommands = commands.map { PlaceholderManager.parse(player, it) }
 
         var source = player.createCommandSourceStack()
         if (permissionLevel != null) {

@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 import com.mojang.authlib.properties.Property
 import com.mojang.authlib.properties.PropertyMap
 import com.pokeskies.actionitems.ActionItems
+import com.pokeskies.actionitems.placeholders.PlaceholderManager
 import com.pokeskies.actionitems.utils.FlexibleListAdaptorFactory
 import com.pokeskies.actionitems.utils.TextUtils
 import com.pokeskies.actionitems.utils.Utils
@@ -15,6 +16,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
@@ -34,11 +36,32 @@ open class DisplayItem(
     @SerializedName("custom_model_data")
     val customModelData: Int? = null,
 ) {
-    fun createItemStack(viewer: ServerPlayer, placeholders: Map<String, String> = emptyMap()): ItemStack {
-        val stack = createBaseItem(viewer)
+    fun createItemStack(player: ServerPlayer, placeholders: Map<String, String> = emptyMap()): ItemStack {
+        val stack = getBaseItem(player, placeholders) ?: return ItemStack(Items.AIR)
 
         if (components != null) {
-            DataComponentPatch.CODEC.decode(ActionItems.INSTANCE.nbtOpts, parseNBT(viewer, components)).result().ifPresent { result ->
+            // Parses the nbt and attempts to replace any placeholders
+            val nbtCopy = components.copy()
+            for (key in components.allKeys) {
+                val element = components.get(key)
+                if (element != null) {
+                    if (element is StringTag) {
+                        nbtCopy.putString(key, element.asString)
+                    } else if (element is ListTag) {
+                        val parsed = ListTag()
+                        for (entry in element) {
+                            if (entry is StringTag) {
+                                parsed.add(StringTag.valueOf(entry.asString))
+                            } else {
+                                parsed.add(entry)
+                            }
+                        }
+                        nbtCopy.put(key, parsed)
+                    }
+                }
+            }
+
+            DataComponentPatch.CODEC.decode(ActionItems.INSTANCE.nbtOpts, nbtCopy).result().ifPresent { result ->
                 stack.applyComponents(result.first)
             }
         }
@@ -49,24 +72,24 @@ open class DisplayItem(
             dataComponents.set(DataComponents.CUSTOM_MODEL_DATA, CustomModelData(customModelData))
         }
 
-        if (name != null)
-            dataComponents.set(DataComponents.ITEM_NAME, TextUtils.toNative(replacePlaceholders(name, placeholders)))
+        name?.let { name ->
+            dataComponents.set(
+                DataComponents.ITEM_NAME, TextUtils.parseAllNative(player, name, placeholders))
+        }
 
         if (lore.isNotEmpty()) {
             val parsedLore: MutableList<String> = mutableListOf()
             for (line in lore.stream().map { it }.toList()) {
-                if (line.contains("\n")) {
-                    line.split("\n").forEach { parsedLore.add(it) }
+                val parsedLine = PlaceholderManager.parse(player, line, placeholders)
+                if (parsedLine.contains("\n")) {
+                    parsedLine.split("\n").forEach { parsedLore.add(it) }
                 } else {
-                    parsedLore.add(line)
+                    parsedLore.add(parsedLine)
                 }
             }
-            dataComponents.set(DataComponents.LORE, ItemLore(
-                parsedLore.stream().map { line ->
-                    Component.empty().withStyle { it.withItalic(false) }
-                        .append(TextUtils.toNative(replacePlaceholders(line, placeholders)))
-                }.toList() as List<Component>
-            ))
+            dataComponents.set(DataComponents.LORE, ItemLore(parsedLore.stream().map {
+                Component.empty().setStyle(Style.EMPTY.withItalic(false)).append(TextUtils.toNative(it)) as Component
+            }.toList()))
         }
 
         stack.applyComponents(dataComponents.build())
@@ -74,16 +97,18 @@ open class DisplayItem(
         return stack
     }
 
-    private fun createBaseItem(player: ServerPlayer): ItemStack {
-        if (item.isEmpty()) return ItemStack(Items.BARRIER, 1)
+    private fun getBaseItem(player: ServerPlayer, placeholders: Map<String, String> = emptyMap()): ItemStack? {
+        if (item.isEmpty()) return null
+
+        val parsedItem = PlaceholderManager.parse(player, item, placeholders)
 
         // Handles player head parsing
-        if (item.startsWith("playerhead", true)) {
-            val itemStack = ItemStack(Items.PLAYER_HEAD, 1)
+        if (parsedItem.startsWith("playerhead", true)) {
+            val headStack = ItemStack(Items.PLAYER_HEAD)
 
             var uuid: UUID? = null
-            if (item.contains("-")) {
-                val arg = item.replace("playerhead-", "")
+            if (parsedItem.contains("-")) {
+                val arg = parsedItem.replace("playerhead-", "")
                 if (arg.isNotEmpty()) {
                     if (arg.contains("-")) {
                         // CASE: UUID format
@@ -100,10 +125,10 @@ open class DisplayItem(
                         // CASE: Game Profile format
                         val properties = PropertyMap()
                         properties.put("textures", Property("textures", arg))
-                        itemStack.applyComponents(DataComponentPatch.builder()
+                        headStack.applyComponents(DataComponentPatch.builder()
                             .set(DataComponents.PROFILE, ResolvableProfile(Optional.empty(), Optional.empty(), properties))
                             .build())
-                        return itemStack
+                        return headStack
                     }
                 }
             } else {
@@ -114,66 +139,24 @@ open class DisplayItem(
             if (uuid != null) {
                 val gameProfile = ActionItems.INSTANCE.server.profileCache?.get(uuid)
                 if (gameProfile != null && gameProfile.isPresent) {
-                    itemStack.applyComponents(DataComponentPatch.builder()
+                    headStack.applyComponents(DataComponentPatch.builder()
                         .set(DataComponents.PROFILE, ResolvableProfile(gameProfile.get()))
                         .build())
-                    return itemStack
+                    return headStack
                 }
             }
 
-            Utils.printError("Error while attempting to parse Player Head: $item")
-            return itemStack
+            Utils.printError("Error while attempting to parse Player Head: $parsedItem")
+            return headStack
         }
 
-        val newItem = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(item))
-
-        if (!newItem.isPresent) {
-            Utils.printError("Error while getting Item, defaulting to Barrier: $item")
-            return ItemStack(Items.BARRIER, 1)
+        val newItem = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(parsedItem))
+        if (newItem.isEmpty) {
+            Utils.printError("Error while getting Item, defaulting to AIR: $parsedItem")
+            return ItemStack(Items.AIR)
         }
 
-        return ItemStack(newItem.get(), 1)
-    }
-
-    private fun parseNBT(player: ServerPlayer, tag: CompoundTag): CompoundTag {
-        val parsedNBT = tag.copy()
-        for (key in parsedNBT.allKeys) {
-            var element = parsedNBT.get(key)
-            if (element != null) {
-                when (element) {
-                    is StringTag -> {
-                        element = StringTag.valueOf(element.asString)
-                    }
-                    is ListTag -> {
-                        val parsed = ListTag()
-                        for (entry in element) {
-                            if (entry is StringTag) {
-                                parsed.add(StringTag.valueOf(entry.asString))
-                            } else {
-                                parsed.add(entry)
-                            }
-                        }
-                        element = parsed
-                    }
-                    is CompoundTag -> {
-                        element = parseNBT(player, element)
-                    }
-                }
-
-                if (element != null) {
-                    parsedNBT.put(key, element)
-                }
-            }
-        }
-        return parsedNBT
-    }
-
-    private fun replacePlaceholders(text: String, placeholders: Map<String, String>): String {
-        var result = text
-        placeholders.forEach { (key, value) ->
-            result = result.replace(key, value)
-        }
-        return result
+        return ItemStack(newItem.get())
     }
 
     override fun toString(): String {

@@ -1,10 +1,10 @@
 package com.pokeskies.actionitems.item.requirements.types.internal
 
 import com.google.gson.annotations.JsonAdapter
-import com.pokeskies.actionitems.ActionItems
 import com.pokeskies.actionitems.item.requirements.ComparisonType
 import com.pokeskies.actionitems.item.requirements.Requirement
 import com.pokeskies.actionitems.item.requirements.RequirementType
+import com.pokeskies.actionitems.placeholders.PlaceholderManager
 import com.pokeskies.actionitems.utils.FlexibleListAdaptorFactory
 import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.server.level.ServerPlayer
@@ -19,7 +19,7 @@ class PlaceholderRequirement(
     override fun checkRequirements(player: ServerPlayer): Boolean {
         if (!checkComparison()) return false
 
-        val parsed = ActionItems.INSTANCE.parsePlaceholders(player, input)
+        val parsed = PlaceholderManager.parse(player, input)
 
         val result = output.any { it.equals(parsed, strict) }
 
