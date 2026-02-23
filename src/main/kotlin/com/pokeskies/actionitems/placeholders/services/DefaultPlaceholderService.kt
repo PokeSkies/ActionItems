@@ -8,5 +8,9 @@ class DefaultPlaceholderService : IPlaceholderService {
         return text
             .replace("%player%", player.name.string)
             .replace("%player_uuid%", player.uuid.toString())
+            .replace("%player_dimension%", player.serverLevel().dimension().location().asString())
+            .replace("%player_pos_x%", player.x.toString())
+            .replace("%player_pos_y%", player.y.toString())
+            .replace("%player_pos_z%", player.z.toString())
     }
 }
