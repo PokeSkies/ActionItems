@@ -148,7 +148,7 @@ object ItemManager {
             }
 
             if (actionItem.consume) itemStack.shrink(1)
-            actionItem.executeActions(player)
+            actionItem.execute(player)
 
             return@UseItemCallback InteractionResultHolder.pass(itemStack)
         })

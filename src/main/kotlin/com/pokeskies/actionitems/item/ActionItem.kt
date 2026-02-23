@@ -1,6 +1,7 @@
 package com.pokeskies.actionitems.item
 
 import com.google.gson.annotations.JsonAdapter
+import com.google.gson.annotations.SerializedName
 import com.pokeskies.actionitems.ActionItems
 import com.pokeskies.actionitems.item.actions.Action
 import com.pokeskies.actionitems.item.requirements.RequirementOptions
@@ -20,6 +21,8 @@ class ActionItem(
     val cooldown: Int = 30,
     val limit: Int = 0,
     val consume: Boolean = true,
+    @SerializedName("random_actions")
+    val randomActions: RandomActions? = null,
     // Will return one day when I figure out left click detection!
 //    @SerializedName("click_types", alternate = ["click_type"])
 //    val clickTypes: List<ClickType> = emptyList(),
@@ -35,8 +38,17 @@ class ActionItem(
         return true
     }
 
-    fun executeActions(player: ServerPlayer) {
+    fun execute(player: ServerPlayer) {
+        executeActions(player)
+        executeRandomActions(player)
+    }
+
+    private fun executeActions(player: ServerPlayer) {
         actions.forEach { action -> action.executeAction(player) }
+    }
+
+    private fun executeRandomActions(player: ServerPlayer) {
+        randomActions?.executeRandom(player)
     }
 
     fun createItemStack(player: ServerPlayer): ItemStack {

@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder
 import com.pokeskies.actionitems.commands.BaseCommand
 import com.pokeskies.actionitems.config.ConfigManager
 import com.pokeskies.actionitems.economy.EconomyManager
+import com.pokeskies.actionitems.item.RandomActions
 import com.pokeskies.actionitems.item.actions.Action
 import com.pokeskies.actionitems.item.requirements.Requirement
 import com.pokeskies.actionitems.placeholders.PlaceholderManager
@@ -78,6 +79,7 @@ class ActionItems : ModInitializer {
         .registerTypeHierarchyAdapter(Item::class.java, Utils.RegistrySerializer(BuiltInRegistries.ITEM))
         .registerTypeHierarchyAdapter(SoundEvent::class.java, Utils.RegistrySerializer(BuiltInRegistries.SOUND_EVENT))
         .registerTypeAdapter(CompoundTag::class.java, CompoundTagAdaptor())
+        .registerTypeAdapter(RandomActions::class.java, RandomActions.Adapter())
         .create()
 
     var gsonPretty: Gson = gson.newBuilder().setPrettyPrinting().create()
