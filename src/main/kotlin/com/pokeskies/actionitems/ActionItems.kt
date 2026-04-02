@@ -8,7 +8,7 @@ import com.google.gson.GsonBuilder
 import com.pokeskies.actionitems.commands.BaseCommand
 import com.pokeskies.actionitems.config.ConfigManager
 import com.pokeskies.actionitems.economy.EconomyManager
-import com.pokeskies.actionitems.item.RandomActions
+import com.pokeskies.actionitems.item.actions.RandomActions
 import com.pokeskies.actionitems.item.actions.Action
 import com.pokeskies.actionitems.item.requirements.Requirement
 import com.pokeskies.actionitems.placeholders.PlaceholderManager

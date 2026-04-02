@@ -1,11 +1,10 @@
-package com.pokeskies.actionitems.item
+package com.pokeskies.actionitems.item.actions
 
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
 import com.google.gson.annotations.SerializedName
-import com.pokeskies.actionitems.item.actions.Action
 import com.pokeskies.actionitems.utils.RandomCollection
 import com.pokeskies.actionitems.utils.Utils
 import net.minecraft.server.level.ServerPlayer
@@ -45,7 +44,7 @@ class RandomActions(
     private fun getRandomEntryIndexed(list: List<RandomEntry>): Int {
         val rc = RandomCollection<Int>()
         for ((i, e) in list.withIndex()) {
-            if (e.weight > 0.0) rc.add(e.weight, i)
+            if (e.weight > 0.0) rc.add(e.weight.toDouble(), i)
         }
 
         return if (rc.size() == 0) {
@@ -74,7 +73,7 @@ class RandomActions(
 
         private fun parseEntry(elem: JsonElement, context: JsonDeserializationContext): RandomEntry {
             val obj = elem.asJsonObject
-            val weight = if (obj.has("weight")) obj.get("weight").asDouble else 1.0
+            val weight = if (obj.has("weight")) obj.get("weight").asInt else 1
 
             if (obj.has("actions")) {
                 val arr = obj.getAsJsonArray("actions")
@@ -102,7 +101,7 @@ class RandomActions(
 }
 
 data class RandomEntry(
-    val weight: Double = 1.0,
+    val weight: Int = 1,
     val actions: List<Action> = emptyList(),
 ) {
     fun execute(player: ServerPlayer) {

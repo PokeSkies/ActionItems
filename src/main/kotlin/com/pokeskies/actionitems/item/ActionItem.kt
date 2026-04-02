@@ -4,6 +4,7 @@ import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
 import com.pokeskies.actionitems.ActionItems
 import com.pokeskies.actionitems.item.actions.Action
+import com.pokeskies.actionitems.item.actions.RandomActions
 import com.pokeskies.actionitems.item.requirements.RequirementOptions
 import com.pokeskies.actionitems.utils.FlexibleListAdaptorFactory
 import net.minecraft.core.component.DataComponentPatch
